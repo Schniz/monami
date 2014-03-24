@@ -82,7 +82,7 @@ describe("Monami", function() {
     before(function(done) {
       app = monami(Mongoose).listen(port, function(err, result) {
         if (err) {
-          done(err);
+          throw Error(err);
         } else {
           done();
         }
@@ -93,6 +93,13 @@ describe("Monami", function() {
       app.close();
       done();
     });
+
+    it("should return 404 when a model does not exist", function(done) {
+      http.get("http://" + testServer + "/this_model_does_not_exist", function(res) {
+        res.statusCode.should.equal(404);
+        done();
+      });
+    })
 
     describe("using Test model", function() {
       var testObjects;
