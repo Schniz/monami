@@ -1,0 +1,17 @@
+{
+  "name": "monami",
+  "version": "0.0.1",
+  "description": "Mongoose API Middleware for Express",
+  "main": "monami.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Gal Schlezinger (gal@spitfire.co.il)",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "~1.18.2",
+    "chai": "~1.9.1",
+    "express": "~4.0.0-rc3",
+    "mongoose": "~3.8.8"
+  }
+}
