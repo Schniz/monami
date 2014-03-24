@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var should = require('chai').should();
 var monami = require('../lib/monami');
 var http = require('http');
 var Mongoose = require('mongoose');
@@ -69,6 +70,52 @@ describe("Monami", function() {
       expect(function() {
         apiServer.reopen('ThisModelDoesntExist', {});
       }).to.throw(Error);
+    });
+  });
+
+  describe("http server", function() {
+    var app;
+    var port = 8080;
+    var hostname = "localhost"
+    var testServer = hostname + ":" + port;
+
+    before(function(done) {
+      app = monami(Mongoose).listen(port, function(err, result) {
+        if (err) {
+          done(err);
+        } else {
+          done();
+        }
+      });
+    });
+
+    after(function(done) {
+      app.close();
+      done();
+    });
+
+    describe("using Test model", function() {
+      var testObjects;
+
+      // Fetch the data
+      before(function(done) {
+        Mongoose.models.Test.find(function(err, data) {
+          testObjects = { tests: data };
+          done();
+        });
+      });
+
+      it("should print all the results, as default", function(done) {
+        http.get("http://" + testServer + "/tests", function(res) {
+          res.on('data', function(data) {
+            var body = JSON.parse(data.toString('utf-8'));
+            body.should.not.be.false;
+            body.should.include.key("tests");
+            body.should.deep.equal(testObjects);
+            done();
+          });
+        });
+      });
     });
   });
 });
