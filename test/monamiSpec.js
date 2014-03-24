@@ -2,6 +2,7 @@ var expect = require('chai').expect;
 var monami = require('../lib/monami');
 var http = require('http');
 var Mongoose = require('mongoose');
+require("blanket")();
 
 describe("Monami", function() {
   before(function() {
@@ -18,23 +19,27 @@ describe("Monami", function() {
       expect(function() {
         monami(Mongoose);
       }).to.not.throw(Error);
+      
       expect(function() {
         monami({
           mongoose: Mongoose
         });
       }).to.not.throw(Error);
+      
       expect(function() {
         monami();
       }).to.throw(Error);
+      
       expect(function() {
         monami([]);
       }).to.throw(Error);
+
       expect(function() {
         monami({});
       }).to.throw(Error);
     });
 
-    it("should return an http server", function() {
+    it("should extend an http server", function() {
       var httpServerKeys = Object.keys(http.createServer());
       expect(monami(Mongoose)).to.include.keys(httpServerKeys);
     });

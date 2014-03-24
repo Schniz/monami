@@ -13,6 +13,7 @@
     "chai": "~1.9.1",
     "express": "~4.0.0-rc3",
     "mongoose": "~3.8.8",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "blanket": "~1.1.6"
   }
 }
