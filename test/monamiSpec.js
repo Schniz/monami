@@ -47,9 +47,6 @@ describe("Monami", function() {
     it("should have a `reopen` method", function() {
       expect(monami(Mongoose)).to.respondTo("reopen");
     });
-
-    it("should create a `get` path for /tests for model Test", function() {
-    });
   });
 
   describe("#reopen", function() {
