@@ -2,7 +2,6 @@ var expect = require('chai').expect;
 var monami = require('../lib/monami');
 var http = require('http');
 var Mongoose = require('mongoose');
-require("blanket")();
 
 describe("Monami", function() {
   before(function() {
