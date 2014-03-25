@@ -77,7 +77,7 @@ describe("Monami", function() {
     var app;
     var port = 8080;
     var hostname = "localhost";
-    var testServer = hostname + ":" + port;
+    var testServer = "http://" + hostname + ":" + port;
 
     before(function(done) {
       app = monami(Mongoose).listen(port, function(err, result) {
@@ -95,33 +95,65 @@ describe("Monami", function() {
     });
 
     it("should return 404 when a model does not exist", function(done) {
-      http.get("http://" + testServer + "/this_model_does_not_exist", function(res) {
+      http.get(testServer + "/this_model_does_not_exist", function(res) {
         res.statusCode.should.equal(404);
         done();
       });
     });
 
     describe("using Test model", function() {
-      var testObjects;
+      describe("DELETE: deleting model", function() {
+        it("should raise 404 if the model wasn't found", function() {
+          // TODO: Implement!
+        });
 
-      // Fetch the data
-      before(function(done) {
-        Mongoose.models.Test.find(function(err, data) {
-          testObjects = { tests: data };
-          done();
+        it("should remove one model", function() {
+          // TODO: Implement!
         });
       });
 
-      it("should print all the results, as default", function(done) {
-        http.get("http://" + testServer + "/tests", function(res) {
-          res.on('data', function(data) {
-            var body = JSON.parse(data.toString('utf-8'));
-            body.should.not.be.false;
-            body.should.include.key("tests");
-            body.should.deep.equal(testObjects);
+      it("should return all the results, as default", function(done) {
+        Mongoose.models.Test.find(function(err, mongoData) {
+          http.get(testServer + "/tests", function(res) {
+            res.on('data', function(data) {
+              var body = JSON.parse(data.toString('utf-8'));
+              body.should.not.be.false;
+              body.should.include.key("tests");
+              JSON.stringify(body.tests).should.deep.equal(JSON.stringify(mongoData));
+              done();
+            });
+          });
+        });
+      });
+
+      // it("should add a model to the collection", function(done) {
+      //   http.put({})
+      // });
+
+      describe("SHOW", function() {
+        var object;
+        before(function(done) {
+          object = new Mongoose.models.Test({ name: "test1", randomNumber: Math.floor(Math.random() * 100) });
+          object.save(function() {
             done();
           });
         });
+
+        it("should return a specific model", function(done) {
+          http.get(testServer + "/tests/" + object._id, function(res) {
+            res.on('data', function(data) {
+              var body = JSON.parse(data.toString('utf-8'));
+              body.should.deep.equal(object.toSimpleObject());
+              done();
+            });
+          });
+        });
+
+        after(function(done) {
+          object.remove(function() {
+            done();
+          });
+        })
       });
     });
   });

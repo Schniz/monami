@@ -4,5 +4,14 @@ module.exports = function(Mongoose) {
     randomNumber: Number
   });
 
+  Tests.methods.toSimpleObject = function() {
+    return {
+      _id: this._id.toString(),
+      name: this.name,
+      randomNumber: this.randomNumber,
+      __v: this.__v
+    };
+  }
+
   Mongoose.model('Test', Tests);
 };
