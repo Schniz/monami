@@ -96,7 +96,7 @@ describe("Monami", function() {
     });
 
     it("should return 404 when a model does not exist", function(done) {
-      http.get(testServer + "/this_model_does_not_exist", function(res) {
+      request.get(testServer + "/this_model_does_not_exist", function(err, res) {
         res.statusCode.should.equal(404);
         done();
       });
@@ -146,14 +146,12 @@ describe("Monami", function() {
 
       it("should return all the results, as default", function(done) {
         Mongoose.models.Test.find(function(err, mongoData) {
-          http.get(testServer + "/tests", function(res) {
-            res.on('data', function(data) {
-              var body = JSON.parse(data.toString('utf-8'));
-              body.should.not.be.false;
-              body.should.include.key("tests");
-              JSON.stringify(body.tests).should.deep.equal(JSON.stringify(mongoData));
-              done();
-            });
+          request.get(testServer + "/tests", function(err, res, body) {
+            var jsonBody = JSON.parse(body);
+            jsonBody.should.not.be.false;
+            jsonBody.should.include.key("tests");
+            JSON.stringify(jsonBody.tests).should.deep.equal(JSON.stringify(mongoData));
+            done();
           });
         });
       });
@@ -172,17 +170,15 @@ describe("Monami", function() {
         });
 
         it("should return a specific model", function(done) {
-          http.get(testServer + "/tests/" + object._id, function(res) {
-            res.on('data', function(data) {
-              var body = JSON.parse(data.toString('utf-8'));
-              body.should.deep.equal(object.toSimpleObject());
-              done();
-            });
+          request.get(testServer + "/tests/" + object._id, function(err, res, body) {
+            var jsonBody = JSON.parse(body);
+            jsonBody.should.deep.equal(object.toSimpleObject());
+            done();
           });
         });
 
         it("should raise 404 if a model does not exist", function(done) {
-          http.get(testServer + "/tests/" + Mongoose.Types.ObjectId().toString(), function(res) {
+          request.get(testServer + "/tests/" + Mongoose.Types.ObjectId().toString(), function(err, res) {
             res.statusCode.should.equal(404);
             done();
           });
