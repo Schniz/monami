@@ -10,13 +10,15 @@
   "author": "Gal Schlezinger (gal@spitfire.co.il)",
   "license": "ISC",
   "dependencies": {
-    "mocha": "~1.18.2",
-    "chai": "~1.9.1",
     "express": "~4.0.0-rc3",
     "mongoose": "~3.8.8",
     "underscore": "~1.6.0",
+    "simpleplan": "0.0.1"
+  },
+  "devDependencies" : {
+    "mocha": "~1.18.2",
+    "chai": "~1.9.1",
     "blanket": "~1.1.6",
-    "simpleplan": "0.0.1",
     "request": "~2.34.0"
   },
   "config": {
