@@ -76,7 +76,7 @@ describe("Monami", function() {
   describe("http server", function() {
     var app;
     var port = 8080;
-    var hostname = "localhost"
+    var hostname = "localhost";
     var testServer = hostname + ":" + port;
 
     before(function(done) {
@@ -99,7 +99,7 @@ describe("Monami", function() {
         res.statusCode.should.equal(404);
         done();
       });
-    })
+    });
 
     describe("using Test model", function() {
       var testObjects;

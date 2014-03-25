@@ -4,7 +4,8 @@
   "description": "Mongoose API Middleware for Express",
   "main": "./lib/monami.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "posttest": "mocha --reporter html-cov > test-results/cov.html"
   },
   "author": "Gal Schlezinger (gal@spitfire.co.il)",
   "license": "ISC",
@@ -16,5 +17,10 @@
     "underscore": "~1.6.0",
     "blanket": "~1.1.6",
     "simpleplan": "0.0.1"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "lib/monami"
+    }
   }
 }
