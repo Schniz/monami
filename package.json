@@ -2,7 +2,7 @@
   "name": "monami",
   "version": "0.0.1",
   "description": "Mongoose API Middleware for Express",
-  "main": "monami.js",
+  "main": "./lib/monami.js",
   "scripts": {
     "test": "mocha"
   },
@@ -14,6 +14,7 @@
     "express": "~4.0.0-rc3",
     "mongoose": "~3.8.8",
     "underscore": "~1.6.0",
-    "blanket": "~1.1.6"
+    "blanket": "~1.1.6",
+    "simpleplan": "0.0.1"
   }
 }
