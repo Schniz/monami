@@ -3,6 +3,7 @@ var should = require('chai').should();
 var monami = require('../lib/monami');
 var http = require('http');
 var Mongoose = require('mongoose');
+var request = require('request');
 
 describe("Monami", function() {
   before(function() {
@@ -103,12 +104,43 @@ describe("Monami", function() {
 
     describe("using Test model", function() {
       describe("DELETE: deleting model", function() {
-        it("should raise 404 if the model wasn't found", function() {
-          // TODO: Implement!
+        var object;
+        before(function(done) {
+          object = new Mongoose.models.Test({ name: "test1", randomNumber: Math.floor(Math.random() * 100) });
+          object.save(function() {
+            done();
+          });
         });
 
-        it("should remove one model", function() {
-          // TODO: Implement!
+        it("should raise 404 if the model wasn't found", function(done) {
+          request.del(testServer + "/tests/" + Mongoose.Types.ObjectId().toString(), function(error, response) {
+            response.statusCode.should.equal(404);
+            done();
+          });
+        });
+
+        it("should remove one model", function(done) {
+          var requestData = {
+            host: 'localhost',
+            port: 8080,
+            path: '/tests/' + '1234',
+            method: 'delete'
+          };
+
+          Mongoose.models.Test.count(function(error, firstCount) {
+            request.del(testServer + "/tests/" + object._id.toString(), function(error, response, body) {
+              Mongoose.models.Test.count(function(error, secondCount) {
+                expect(firstCount - secondCount).to.equal(1);
+                done();
+              })
+            });
+          })
+        });
+
+        after(function(done) {
+          object.remove(function() {
+            done();
+          });
         });
       });
 
@@ -160,7 +192,7 @@ describe("Monami", function() {
           object.remove(function() {
             done();
           });
-        })
+        });
       });
     });
   });
