@@ -149,6 +149,13 @@ describe("Monami", function() {
           });
         });
 
+        it("should raise 404 if a model does not exist", function(done) {
+          http.get(testServer + "/tests/" + Mongoose.Types.ObjectId().toString(), function(res) {
+            res.statusCode.should.equal(404);
+            done();
+          });
+        });
+
         after(function(done) {
           object.remove(function() {
             done();
