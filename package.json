@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "~4.0.0-rc3",
+    "body-parser": "~1.0.0",
     "mongoose": "~3.8.8",
     "underscore": "~1.6.0",
     "simpleplan": "0.0.1"

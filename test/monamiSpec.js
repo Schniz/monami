@@ -5,10 +5,18 @@ var http = require('http');
 var Mongoose = require('mongoose');
 var request = require('request');
 
+var generateRandomNumber = function(number) {
+  return Math.floor(Math.random() * number);
+};
+
 describe("Monami", function() {
+  var TestModel;
+
   before(function() {
     Mongoose.connect("mongodb://localhost/monami_spec_tests");
     require('./models')(Mongoose);
+
+    TestModel = Mongoose.models.Test;
   });
 
   describe("Simple creation method", function() {
@@ -103,10 +111,32 @@ describe("Monami", function() {
     });
 
     describe("using Test model", function() {
+      describe("INDEX: showing all models", function() {
+        it("should return all the results, as default", function(done) {
+          TestModel.find(function(err, mongoData) {
+            request.get(testServer + "/tests", function(err, res, body) {
+              var jsonBody = JSON.parse(body);
+              jsonBody.should.not.equal(false);
+              jsonBody.should.include.key("tests");
+              JSON.stringify(jsonBody.tests).should.deep.equal(JSON.stringify(mongoData));
+              done();
+            });
+          });
+        });
+
+        // it("should accept querystring parameters for searching", function() {
+        //   "unimplemented".should.not.equal("unimplemented");
+        // });
+
+        // it("should accept querystring for paging", function() {
+        //   "unimplemented".should.not.equal("unimplemented");
+        // });
+      });
+
       describe("DELETE: deleting model", function() {
         var object;
         before(function(done) {
-          object = new Mongoose.models.Test({ name: "test1", randomNumber: Math.floor(Math.random() * 100) });
+          object = new TestModel({ name: "test1", randomNumber: generateRandomNumber(100) });
           object.save(function() {
             done();
           });
@@ -127,14 +157,14 @@ describe("Monami", function() {
             method: 'delete'
           };
 
-          Mongoose.models.Test.count(function(error, firstCount) {
+          TestModel.count(function(error, firstCount) {
             request.del(testServer + "/tests/" + object._id.toString(), function(error, response, body) {
-              Mongoose.models.Test.count(function(error, secondCount) {
+              TestModel.count(function(error, secondCount) {
                 expect(firstCount - secondCount).to.equal(1);
                 done();
-              })
+              });
             });
-          })
+          });
         });
 
         after(function(done) {
@@ -144,26 +174,10 @@ describe("Monami", function() {
         });
       });
 
-      it("should return all the results, as default", function(done) {
-        Mongoose.models.Test.find(function(err, mongoData) {
-          request.get(testServer + "/tests", function(err, res, body) {
-            var jsonBody = JSON.parse(body);
-            jsonBody.should.not.be.false;
-            jsonBody.should.include.key("tests");
-            JSON.stringify(jsonBody.tests).should.deep.equal(JSON.stringify(mongoData));
-            done();
-          });
-        });
-      });
-
-      // it("should add a model to the collection", function(done) {
-      //   http.put({})
-      // });
-
       describe("SHOW", function() {
         var object;
         before(function(done) {
-          object = new Mongoose.models.Test({ name: "test1", randomNumber: Math.floor(Math.random() * 100) });
+          object = new TestModel({ name: "test1", randomNumber: generateRandomNumber(100) });
           object.save(function() {
             done();
           });
@@ -187,6 +201,76 @@ describe("Monami", function() {
         after(function(done) {
           object.remove(function() {
             done();
+          });
+        });
+      });
+    
+      describe("INSERT: adding model", function() {
+        it("should add a model to the collection", function() {
+        });
+      });
+
+      describe("UPDATE: updating model", function() {
+        var object;
+
+        // Create the model
+        before(function(done) {
+          object = new TestModel({ name: "first name", randomNumber: 1 });
+          object.save(function(err, data) {
+            done();
+          });
+        });
+        // Destroy the model
+        after(function(done) {
+          object.remove(function(){
+            done();
+          });
+        });
+
+        it("should update one attribute", function(done) {
+          var changes = {
+            name: "second name"
+          };
+
+          TestModel.findById(object._id, function(err, modelData) {
+            request.post(testServer + "/tests/" + object._id, function(err, res, body) {
+              var simpleModelData = modelData.toSimpleObject();
+              simpleModelData.name = changes.name;
+
+              body.should.deep.equal(simpleModelData);
+              done();
+            }).json(changes);
+          });
+        });
+
+        it("should update many attributes at once", function(done) {
+          var changes = {
+            randomNumber: generateRandomNumber(100),
+            name: "third name"
+          };
+
+          TestModel.findById(object._id, function(err, modelData) {
+            request.post(testServer + "/tests/" + object._id, function(err, res, body) {
+              var simpleModelData = modelData.toSimpleObject();
+              simpleModelData.name = changes.name;
+              simpleModelData.randomNumber = changes.randomNumber;
+
+              body.should.deep.equal(simpleModelData);
+              done();
+            }).json(changes);
+          });
+        });
+
+        it("shouldn't update the _id attribute", function(done) {
+          var changes = {
+            _id: Mongoose.Types.ObjectId()
+          };
+
+          TestModel.findById(object._id, function(err, modelData) {
+            request.post(testServer + "/tests/" + object._id, function(err, res, body) {
+              res.statusCode.should.equal(500);
+              done();
+            }).json(changes);
           });
         });
       });
