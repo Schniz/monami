@@ -97,7 +97,6 @@ describe("Monami", function() {
 
       after(function(done) {
         app.close(function() {
-          console.log('ya maniak!');
           done();
         });
       });
