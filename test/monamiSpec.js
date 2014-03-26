@@ -206,7 +206,38 @@ describe("Monami", function() {
       });
     
       describe("INSERT: adding model", function() {
-        it("should add a model to the collection", function() {
+        it("should add a model to the collection", function(done) {
+          var objectToInsert = {
+            name: "random nameeee",
+            randomNumber: generateRandomNumber(200)
+          };
+
+          request.put(testServer + "/tests", function(err, res, body) {
+            res.statusCode.should.equal(302);
+            objectToInsert._id = res.headers.location;
+
+            TestModel.findByIdAndRemove(objectToInsert._id, function(error, modelData) {
+              var modelDataObject = modelData.toSimpleObject();
+              delete modelDataObject.__v;
+
+              objectToInsert.should.deep.equal(modelDataObject);
+            });
+
+            done();
+          }).json(objectToInsert);
+        });
+
+        it("should not permit values that are not a part of the schema", function(done) {
+          var objectToInsert = {
+            name: "random nameeee",
+            randomNumber: generateRandomNumber(200),
+            myCustomValue: 'gal is awesome'
+          };
+
+          request.put(testServer + "/tests", function(err, res, body) {
+            res.statusCode.should.equal(500);
+            done();
+          }).json(objectToInsert);
         });
       });
 
