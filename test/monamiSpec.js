@@ -59,26 +59,108 @@ describe("Monami", function() {
   });
 
   describe("#reopen", function() {
-    var apiServer;
+    var app;
+    var port = 8080;
+    var hostname = "localhost";
+    var testServer = "http://" + hostname + ":" + port;
 
-    beforeEach(function() {
-      apiServer = monami(Mongoose);
+    before(function() {
+      app = monami(Mongoose);
     });
 
     it("should get an optional string and an configuration object", function() {
       expect(function() {
-        apiServer.reopen('Test', {});
+        app.reopen('Test', {});
       }).to.not.throw(Error);
 
       expect(function() {
-        apiServer.reopen({});
+        app.reopen({});
       }).to.not.throw(Error);
     });
 
     it("should raise an error if the model doesn't exist", function() {
       expect(function() {
-        apiServer.reopen('ThisModelDoesntExist', {});
+        app.reopen('ThisModelDoesntExist', {});
       }).to.throw(Error);
+    });
+
+    describe("should replace the default methods of the app", function() {
+      before(function(done) {
+        app.listen(8080, function(err, result) {
+          if (err) {
+            throw Error(err);
+          } else {
+            done();
+          }
+        });
+      });
+
+      after(function(done) {
+        app.close(function() {
+          console.log('ya maniak!');
+          done();
+        });
+      });
+
+      it("should return 'simple index' for index method", function(done) {
+        app.reopen({
+          index: function(req, res) { return res.status(200).send('simple index'); }
+        });
+
+        request.get(testServer + "/tests", function(error, res, body) {
+          res.statusCode.should.equal(200);
+          res.body.should.equal('simple index');
+          done();
+        });
+      });
+
+      it("should return 'simple destroy' for destroy method", function(done) {
+        app.reopen({
+          destroy: function(req, res) { return res.status(200).send('simple destroy'); }
+        });
+
+        request.del(testServer + "/tests/123", function(error, res, body) {
+          res.statusCode.should.equal(200);
+          res.body.should.equal('simple destroy');
+          done();
+        });
+      });
+
+      it("should return 'simple show' for show method", function(done) {
+        app.reopen({
+          show: function(req, res) { return res.status(200).send('simple show'); }
+        });
+
+        request.get(testServer + "/tests/123", function(error, res, body) {
+          res.statusCode.should.equal(200);
+          res.body.should.equal('simple show');
+          done();
+        });
+      });
+
+      it("should return 'simple update' for update method", function(done) {
+        app.reopen({
+          update: function(req, res) { return res.status(200).send('simple update'); }
+        });
+
+        request.post(testServer + "/tests/123", function(error, res, body) {
+          res.statusCode.should.equal(200);
+          res.body.should.equal('simple update');
+          done();
+        });
+      });
+
+      it("should return 'simple insert' for insert method", function(done) {
+        app.reopen({
+          insert: function(req, res) { return res.status(200).send('simple insert'); }
+        });
+
+        request.put(testServer + "/tests", function(error, res, body) {
+          res.statusCode.should.equal(200);
+          res.body.should.equal('simple insert');
+          done();
+        });
+      });
     });
   });
 
@@ -99,8 +181,9 @@ describe("Monami", function() {
     });
 
     after(function(done) {
-      app.close();
-      done();
+      app.close(function() {
+        done();
+      });
     });
 
     it("should return 404 when a model does not exist", function(done) {
