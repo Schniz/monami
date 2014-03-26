@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "description": "Mongoose API Middleware for Express",
   "main": "./lib/monami.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Schniz/monami.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Schniz/monami/issues"
+  },
   "scripts": {
     "test": "mocha",
     "posttest": "mocha --reporter html-cov > test-results/cov.html"
