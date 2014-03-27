@@ -17,6 +17,9 @@ Mongoose.connect("mongodb://localhost/monami_spec_tests");
 require('../test/models')(Mongoose);
 
 monami(Mongoose).listen(8080);
+
+// You can mount it to your app by using
+// app.use('/api', monami(Mongoose));
 ```
 
 # Overrides

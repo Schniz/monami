@@ -4,6 +4,7 @@ var monami = require('../lib/monami');
 var http = require('http');
 var Mongoose = require('mongoose');
 var request = require('request');
+var express = require('express');
 
 var generateRandomNumber = function(number) {
   return Math.floor(Math.random() * number);
@@ -48,13 +49,20 @@ describe("Monami", function() {
       }).to.throw(Error);
     });
 
-    it("should extend an http server", function() {
-      var httpServerKeys = Object.keys(http.createServer());
+    it("should be an express instance", function() {
+      var httpServerKeys = Object.keys(express());
       expect(monami(Mongoose)).to.include.keys(httpServerKeys);
     });
 
+    it("should be able to be mounted by express", function() {
+      expect(function() {
+        var expressApp = express();
+        express.use('/api', monami(Mongoose));
+      }).to.not.throw(Error);
+    });
+
     it("should have a `reopen` method", function() {
-      expect(monami(Mongoose)).to.respondTo("reopen");
+      monami(Mongoose).reopen.should.be.a("function");
     });
   });
 
@@ -85,8 +93,10 @@ describe("Monami", function() {
     });
 
     describe("should replace the default methods of the app", function() {
+      var appInstance;
+
       before(function(done) {
-        app.listen(8080, function(err, result) {
+        appInstance = app.listen(8080, function(err, result) {
           if (err) {
             throw Error(err);
           } else {
@@ -96,7 +106,7 @@ describe("Monami", function() {
       });
 
       after(function(done) {
-        app.close(function() {
+        appInstance.close(function() {
           done();
         });
       });
